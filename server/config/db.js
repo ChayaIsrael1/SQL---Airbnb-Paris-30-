@@ -1,6 +1,6 @@
 // Step 1: the connection pool - ONE pool for the whole server.
 //
-// 1. const sql = require("mssql");
+// const sql = require("mssql");
 // 2. Build the config from process.env (DB_SERVER, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME).
 //    Use a small pool: pool: { max: 3 }  (the whole class uses the same server)
 //    and options: { encrypt: true, trustServerCertificate: true }
@@ -10,3 +10,20 @@
 //      module.exports = { sql, poolPromise };
 //
 // See docs/mssql-cheatsheet.md for a full example.
+
+const sql = require('mssql')
+
+const config = {
+  server: process.env.DB_SERVER,
+  port: Number(process.env.DB_PORT) || 1433,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  pool: { max: 3 },                       // small - the whole class uses the same server
+  options: { encrypt: true, trustServerCertificate: true },
+};
+
+// connect ONCE - everyone awaits the same promise
+const poolPromise = new sql.ConnectionPool(config).connect();
+
+module.exports = { sql, poolPromise };
